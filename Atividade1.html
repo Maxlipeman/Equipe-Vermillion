@@ -1,0 +1,26 @@
+<html>
+<head>
+
+</head>
+
+<body>
+  <script>
+    function retornaIniciais(nomeCompleto) {
+      let palavras = nomeCompleto.split(' ');
+
+      let primeiraInicial = palavras[0].charAt(0).toUpperCase();
+	let ultimaInicial;
+	if (palavras.length == 1){
+	ultimaInicial = "x";
+	} else {     
+      ultimaInicial = palavras[palavras.length - 1].charAt(0).toUpperCase();
+	}
+
+      return primeiraInicial + ultimaInicial;
+    }
+    
+    console.log(retornaIniciais("alexandre mateus ferreira"));
+  </script>
+  
+</body>
+</html>
