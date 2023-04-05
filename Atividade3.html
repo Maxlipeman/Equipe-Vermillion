@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta de Veículos</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-QatOgV7ScuP3LGGJdqOuN20N/L1D9gyZGd/n1tayCsd0qvKpMa13EmJR6m0G8o0TcJnsT6TmT0fj50dpdMX7kg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    body {
+      padding-top: 50px;
+      background-color: #f5f5f5;
+    }
+
+    form {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+
+.radio-img{
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+}
+
+    .radio-img label {
+  display: inline-block;
+  width: 20.33%;
+  text-align: center;
+}
+
+.radio-img input[type="radio"] {
+  display: none;
+}
+
+
+.radio-img label img {
+  width: 90px;
+  height: 90px;
+  border: 3px solid transparent;
+  cursor: pointer;
+  padding:5px;
+  opacity:0.4;
+  border-radius: 10px;
+  background-color: rgb(255, 222, 222);
+}
+
+
+
+.radio-img input[type="radio"]:hover + img {
+  opacity:0.7;
+}
+
+.radio-img input[type="radio"]:checked + img {
+  border-color: green;
+  opacity:1;
+  background-color: rgb(172, 255, 156);
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-center">Consulta de Veículos</h1>
+    <form>
+      <div class="form-group">
+
+        <div class="radio-img">
+          <label>
+            <input type="radio" id="carros" name="vehicleType" value="carros">
+            <img src="https://cdn-icons-png.flaticon.com/512/3202/3202926.png" alt="Carros">
+          </label>
+          <label>
+            <input type="radio" id="motos" name="vehicleType" value="motos">
+            <img src="https://cdn-icons-png.flaticon.com/512/31/31410.png" alt="Motos">
+          </label>
+          <label>
+            <input type="radio" id="caminhoes" name="vehicleType" value="caminhoes">
+            <img src="https://cdn-icons-png.flaticon.com/512/286/286112.png" alt="Caminhões">
+          </label>
+          <input type="hidden" id="vehicleTypeSelect">
+        </div>
+        
+      </div>
+      <div class="form-group">
+        <label for="brandSelect">Marca:</label>
+        <select id="brandSelect" class="form-control"></select>
+      </div>
+      <div class="form-group">
+        <label for="modelSelect">Modelo:</label>
+        <select id="modelSelect" class="form-control" disabled></select>
+      </div>
+      <div class="form-group">
+        <label for="yearSelect">Ano:</label>
+        <select id="yearSelect" class="form-control" disabled></select>
+      </div>
+      <button type="button" id="modalbt" class="btn btn-primary" data-toggle="modal" data-target="#ExemploModalCentralizado">Consultar</button>
+    </form>
+
+    <!-- Modal -->
+    <div class="modal fade" id="ExemploModalCentralizado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="TituloModalCentralizado">Informações do Modelo
+            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+              <span aria-hidden="true">X</span>
+            </button>
+          </h5>
+          </div>
+          <div class="modal-body" id="modalconteudo">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-primary">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    
+
+    const radios = document.getElementsByName("vehicleType");
+    for (let i = 0; i < radios.length; i++) {
+      radios[i].addEventListener("change", function() {
+        vehicleTypeSelect.value = this.value;
+
+    
+
+      brandSelect.innerHTML = '<option>Selecione a marca</option>';
+      modelSelect.innerHTML = '<option>Selecione o modelo</option>';
+      yearSelect.innerHTML = '<option>Selecione o ano</option>';
+      brandSelect.disabled = true;
+      modelSelect.disabled = true;
+      yearSelect.disabled = true;
+    
+      const vehicleType = vehicleTypeSelect.value;
+      fetchJson(`${apiUrl}/${vehicleType}/marcas`)
+        .then(brands => {
+          brandSelect.innerHTML = '<option>Selecione a marca</option>';
+          brands.forEach(brand => {
+            brandSelect.innerHTML += `<option value="${brand.codigo}">${brand.nome}</option>`;
+          });
+          brandSelect.disabled = false;
+        })
+        .catch(error => console.error('Error fetching brands', error));
+
+
+
+
+
+      });
+  }
+
+    const brandSelect = document.querySelector('#brandSelect');
+    const modelSelect = document.querySelector('#modelSelect');
+    const yearSelect = document.querySelector('#yearSelect');
+
+
+    const vehicleTypeSelect = document.querySelector('#vehicleTypeSelect');
+
+    
+
+
+    const apiUrl = 'https://parallelum.com.br/fipe/api/v1';
+    const fetchJson = url => fetch(url).then(response => response.json());
+    
+    
+    
+    const modalBtn = document.getElementById('modalbt');
+    
+    function toggleModalBtn() {
+      if (yearSelect.disabled || yearSelect.value === 'Selecione o ano') {
+        modalBtn.disabled = true;
+      } else {
+        modalBtn.disabled = false;
+      }
+    }
+    
+    toggleModalBtn();
+    
+    brandSelect.addEventListener('change', toggleModalBtn);
+    modelSelect.addEventListener('change', toggleModalBtn);
+    yearSelect.addEventListener('change', toggleModalBtn);
+    vehicleTypeSelect.addEventListener('change', toggleModalBtn);
+    
+    
+    
+    brandSelect.innerHTML = '<option>Selecione a marca</option>';
+    modelSelect.innerHTML = '<option>Selecione o modelo</option>';
+    yearSelect.innerHTML = '<option>Selecione o ano</option>';
+    brandSelect.disabled = true;
+    modelSelect.disabled = true;
+    yearSelect.disabled = true;
+
+    
+    
+    
+    brandSelect.addEventListener('change', () => {
+      modelSelect.innerHTML = '<option>Selecione o modelo</option>';
+      yearSelect.innerHTML = '<option>Selecione o ano</option>';
+    
+      modelSelect.disabled = true;
+      yearSelect.disabled = true;
+    
+      const brandCode = brandSelect.value;
+      const vehicleType = vehicleTypeSelect.value;
+      if (!brandCode) {
+        modelSelect.innerHTML = '<option>Selecione a marca primeiro</option>';
+        return;
+      }
+    
+      fetchJson(`${apiUrl}/${vehicleType}/marcas/${brandCode}/modelos`)
+        .then(models => {
+          modelSelect.innerHTML = '<option>Selecione o modelo</option>';
+          models.modelos.forEach(model => {
+            modelSelect.innerHTML += `<option value="${model.codigo}">${model.nome}</option>`;
+          });
+          modelSelect.disabled = false;
+        })
+        .catch(error => console.error('Error fetching models', error));
+    });
+    
+    modelSelect.addEventListener('change', () => {
+      yearSelect.innerHTML = '<option>Selecione o ano</option>';
+      yearSelect.disabled = true;
+    
+      const brandCode = brandSelect.value;
+      const modelCode = modelSelect.value;
+      const vehicleType = vehicleTypeSelect.value;
+      if (!brandCode || !modelCode) {
+        yearSelect.innerHTML = '<option>Selecione a marca e o modelo primeiro</option>';
+        return;
+      }
+    
+      fetchJson(`${apiUrl}/${vehicleType}/marcas/${brandCode}/modelos/${modelCode}/anos`)
+        .then(years => {
+          yearSelect.innerHTML = '<option>Selecione o ano</option>';
+          years.forEach(year => {
+            yearSelect.innerHTML += `<option value="${year.codigo}">${year.nome}</option>`;
+          });
+          yearSelect.disabled = false;
+        })
+        .catch(error => console.error('Error fetching years', error));
+    });
+    
+    
+    
+    
+    yearSelect.addEventListener('change', () => {
+      const brandCode = brandSelect.value;
+      const modelCode = modelSelect.value;
+      const yearCode = yearSelect.value;
+      const vehicleType = vehicleTypeSelect.value;
+      
+      if (!brandCode || !modelCode || !yearCode) {
+        alert('Selecione todos os campos para fazer a consulta');
+        return;
+      }
+      
+      fetchJson(`${apiUrl}/${vehicleType}/marcas/${brandCode}/modelos/${modelCode}/anos/${yearCode}`)
+        .then(result => {
+          console.log("TESTE")
+          document.querySelector('#modalconteudo').innerHTML=`Tipo de Veículo: ${result.TipoVeiculo}<br>Valor: ${result.Valor}<br>Marca: ${result.Marca}<br>Modelo: ${result.Modelo}<br>Ano/Modelo: ${result.AnoModelo}<br>Combustível: ${result.Combustivel}<br>Código FIPE: ${result.CodigoFipe}<br>Mês de Referência: ${result.MesReferencia}<br>Sigla do Combustível: ${result.SiglaCombustivel}`;
+        })
+        .catch(error => console.error('Error fetching result', error));
+    });
+    
+    
+    </script>
+
+
+
+
+</body>
+</html>
